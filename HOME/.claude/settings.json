@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(afplay /System/Library/Sounds/Blow.aiff)",
+      "Bash(mkdir:*)",
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}

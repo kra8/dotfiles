@@ -1,0 +1,83 @@
+version: '3'
+
+vars:
+  HOME_DIR: '{{.HOME}}'        # 実際のホームディレクトリ
+  LOCAL_HOME: '{{.PWD}}/HOME'  # このリポジトリ内のHOMEディレクトリ
+  DOTFILES_DIR: '{{.PWD}}'     # このdotfilesリポジトリのディレクトリ
+
+tasks:
+  default:
+    desc: 利用可能なタスクを表示
+    cmds:
+      - task --list
+
+  pull:
+    desc: dotfiles.ymlで定義された全てのファイルをホームディレクトリからコピー
+    cmds:
+      - |
+        if [ ! -f "dotfiles.yml" ]; then
+          echo "dotfiles.yml が存在しません"
+          exit 1
+        fi
+        echo "dotfiles.yml から管理対象を読み込み中..."
+        rm -rf HOME
+        mkdir -p "HOME"
+        grep "^  - " dotfiles.yml | sed 's/^  - //' | while read -r file; do
+          if [ -f "{{.HOME_DIR}}/$file" ] || [ -d "{{.HOME_DIR}}/$file" ]; then
+            echo "コピー中: $file"
+            mkdir -p "HOME/$(dirname "$file")"
+            cp -r "{{.HOME_DIR}}/$file" "HOME/$file"
+          else
+            echo "スキップ: $file (存在しません)"
+          fi
+        done
+        echo "全てのファイルのコピーが完了しました"
+
+  push:
+    desc: dotfiles.ymlで定義された全てのファイルをホームディレクトリにコピー
+    cmds:
+      - |
+        if [ ! -f "dotfiles.yml" ]; then
+          echo "dotfiles.yml が存在しません"
+          exit 1
+        fi
+        echo "dotfiles.yml から管理対象を読み込み中..."
+        grep "^  - " dotfiles.yml | sed 's/^  - //' | while read -r file; do
+          if [ -f "HOME/$file" ] || [ -d "HOME/$file" ]; then
+            echo "コピー中: $file"
+            mkdir -p "{{.HOME_DIR}}/$(dirname "$file")"
+            cp -r "HOME/$file" "{{.HOME_DIR}}/$file"
+          else
+            echo "スキップ: $file (存在しません)"
+          fi
+        done
+        echo "全てのファイルのコピーが完了しました"
+
+  status:
+    desc: dotfiles.ymlで定義されたファイルの状態を確認
+    cmds:
+      - |
+        if [ ! -f "dotfiles.yml" ]; then
+          echo "dotfiles.yml が存在しません"
+          exit 1
+        fi
+        echo "=== Dotfiles Status ==="
+        echo "リポジトリ内のHOMEディレクトリ:"
+        grep "^  - " dotfiles.yml | sed 's/^  - //' | while read -r file; do
+          if [ -f "HOME/$file" ] || [ -d "HOME/$file" ]; then
+            echo "✅ $file (リポジトリ内に存在)"
+          else
+            echo "❌ $file (リポジトリ内に存在しません)"
+          fi
+        done
+        echo ""
+        echo "実際のホームディレクトリ:"
+        grep "^  - " dotfiles.yml | sed 's/^  - //' | while read -r file; do
+          if [ -L "{{.HOME_DIR}}/$file" ]; then
+            echo "🔗 $file (シンボリックリンク)"
+          elif [ -f "{{.HOME_DIR}}/$file" ] || [ -d "{{.HOME_DIR}}/$file" ]; then
+            echo "📄 $file (通常ファイル/ディレクトリ)"
+          else
+            echo "❌ $file (存在しません)"
+          fi
+        done

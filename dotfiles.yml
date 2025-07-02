@@ -1,0 +1,6 @@
+# 管理対象のdotfilesを定義
+# ファイルやディレクトリのパスを記述してください
+files:
+  - .claude/settings.json
+  - .claude/CLAUDE.md
+  - .claude/commands/
