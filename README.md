@@ -21,9 +21,6 @@ task pull
 # 設定ファイルをホームディレクトリにコピー
 task push
 
-# 設定ファイルをホームディレクトリにシンボリックリンク
-task link
-
 # 管理対象ファイルの状態を確認
 task status
 ```
@@ -67,4 +64,3 @@ task link
 
 - `task pull`: `$HOME` → `./HOME/` にファイルをコピー
 - `task push`: `./HOME/` → `$HOME` にファイルをコピー  
-- `task link`: `./HOME/` → `$HOME` にシンボリックリンクを作成
